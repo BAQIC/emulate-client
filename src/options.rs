@@ -7,6 +7,15 @@ pub enum OutputFormat {
     Tableau,
 }
 
+impl std::fmt::Display for OutputFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            OutputFormat::Json => write!(f, "json"),
+            OutputFormat::Tableau => write!(f, "tableau"),
+        }
+    }
+}
+
 #[derive(Parser, Debug)]
 #[command(name = "emulate-client")]
 #[command(author = "Lucky <lucky@lucky9.cyou>")]
