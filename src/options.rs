@@ -4,14 +4,14 @@ use std::net::SocketAddr;
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub enum OutputFormat {
     Json,
-    Tableau,
+    Tabular,
 }
 
 impl std::fmt::Display for OutputFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             OutputFormat::Json => write!(f, "json"),
-            OutputFormat::Tableau => write!(f, "tableau"),
+            OutputFormat::Tabular => write!(f, "tabular"),
         }
     }
 }
@@ -34,11 +34,11 @@ pub struct Options {
     #[arg(short, long, value_enum, default_value = "json")]
     pub outputformat: OutputFormat,
 
-    /// The number of shots
-    #[arg(short, long, default_value = "1")]
+    /// The number of shots1
+    #[arg(short, long, default_value = "0")]
     pub shots: usize,
 
     /// Whether to test the server, do not need to specify the file
     #[arg(short, long)]
-    pub test: bool,
+    pub init_db: bool,
 }

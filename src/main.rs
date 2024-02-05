@@ -4,9 +4,9 @@ mod options;
 use serde_json::Value;
 use std::fs;
 
-fn test(cli: &options::Options) -> String {
+fn init_qthread(cli: &options::Options) -> String {
     serde_json::to_string_pretty(
-        &reqwest::blocking::get(format!("http://{}", cli.address))
+        &reqwest::blocking::get(format!("http://{}/init", cli.address))
             .unwrap()
             .json::<Value>()
             .unwrap(),
@@ -24,7 +24,7 @@ fn emulate(cli: &options::Options) -> String {
     ];
     serde_json::to_string_pretty(
         &reqwest::blocking::Client::new()
-            .post(format!("http://{}/emulate", cli.address))
+            .post(format!("http://{}/submit", cli.address))
             .form(&body)
             .send()
             .unwrap()
@@ -37,7 +37,7 @@ fn emulate(cli: &options::Options) -> String {
 fn main() {
     let cli = options::Options::parse();
 
-    let output = if cli.test { test(&cli) } else { emulate(&cli) };
+    let output = if cli.init_db { init_qthread(&cli) } else { emulate(&cli) };
 
     println!("{}", output);
 }
