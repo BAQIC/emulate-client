@@ -16,6 +16,23 @@ impl std::fmt::Display for OutputFormat {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum Model {
+    InitDb,
+    Emulate,
+    GetTask,
+}
+
+impl std::fmt::Display for Model {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Model::InitDb => write!(f, "init-db"),
+            Model::Emulate => write!(f, "emulate"),
+            Model::GetTask => write!(f, "get-task"),
+        }
+    }
+}
+
 #[derive(Parser, Debug)]
 #[command(name = "emulate-client")]
 #[command(author = "Lucky <lucky@lucky9.cyou>")]
@@ -38,7 +55,11 @@ pub struct Options {
     #[arg(short, long, default_value = "0")]
     pub shots: usize,
 
+    /// The id of the job
+    #[arg(short, long, default_value = None)]
+    pub task_id: Option<String>,
+
     /// Whether to test the server, do not need to specify the file
-    #[arg(short, long)]
-    pub init_db: bool,
+    #[arg(short, long, default_value = "emulate")]
+    pub model: Model,
 }

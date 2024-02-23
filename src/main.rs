@@ -34,10 +34,28 @@ fn emulate(cli: &options::Options) -> String {
     .unwrap()
 }
 
+fn get_task(cli: &options::Options) -> String {
+    let url = reqwest::Url::parse_with_params(
+        &format!("http://{}/get_task", cli.address),
+        [("task_id", cli.task_id.as_ref().unwrap())],
+    ).unwrap();
+    serde_json::to_string_pretty(
+        &reqwest::blocking::get(url)
+            .unwrap()
+            .json::<Value>()
+            .unwrap(),
+    )
+    .unwrap()
+}
+
 fn main() {
     let cli = options::Options::parse();
 
-    let output = if cli.init_db { init_qthread(&cli) } else { emulate(&cli) };
+    let output = match cli.model {
+        options::Model::InitDb => init_qthread(&cli),
+        options::Model::Emulate => emulate(&cli),
+        options::Model::GetTask => get_task(&cli),
+    };
 
     println!("{}", output);
 }
