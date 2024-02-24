@@ -55,6 +55,10 @@ pub struct Options {
     #[arg(short, long, default_value = "0")]
     pub shots: usize,
 
+    /// The number of agents when initializing the database
+    #[arg(long, default_value = "1")]
+    pub agent_num: usize,
+
     /// The id of the job
     #[arg(short, long, default_value = None)]
     pub task_id: Option<String>,

@@ -5,8 +5,13 @@ use serde_json::Value;
 use std::fs;
 
 fn init_qthread(cli: &options::Options) -> String {
+    let url = reqwest::Url::parse_with_params(
+        &format!("http://{}/init", cli.address),
+        [("agents", cli.agent_num.to_string())],
+    )
+    .unwrap();
     serde_json::to_string_pretty(
-        &reqwest::blocking::get(format!("http://{}/init", cli.address))
+        &reqwest::blocking::get(url)
             .unwrap()
             .json::<Value>()
             .unwrap(),
@@ -38,7 +43,8 @@ fn get_task(cli: &options::Options) -> String {
     let url = reqwest::Url::parse_with_params(
         &format!("http://{}/get_task", cli.address),
         [("task_id", cli.task_id.as_ref().unwrap())],
-    ).unwrap();
+    )
+    .unwrap();
     serde_json::to_string_pretty(
         &reqwest::blocking::get(url)
             .unwrap()
