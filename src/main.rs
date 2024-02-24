@@ -58,7 +58,7 @@ fn main() {
     let cli = options::Options::parse();
 
     let output = match cli.model {
-        options::Model::InitDb => init_qthread(&cli),
+        options::Model::InitQthread => init_qthread(&cli),
         options::Model::Emulate => emulate(&cli),
         options::Model::GetTask => get_task(&cli),
     };

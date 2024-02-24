@@ -18,7 +18,7 @@ impl std::fmt::Display for OutputFormat {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub enum Model {
-    InitDb,
+    InitQthread,
     Emulate,
     GetTask,
 }
@@ -26,7 +26,7 @@ pub enum Model {
 impl std::fmt::Display for Model {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Model::InitDb => write!(f, "init-db"),
+            Model::InitQthread => write!(f, "init-qthread"),
             Model::Emulate => write!(f, "emulate"),
             Model::GetTask => write!(f, "get-task"),
         }
