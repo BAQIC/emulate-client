@@ -21,12 +21,26 @@ fn init_qthread(cli: &options::Options) -> String {
 
 fn emulate(cli: &options::Options) -> String {
     let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
-    println!("With text:\n{}", content);
     let body = [
         ("qasm", content),
         ("shots", cli.shots.to_string()),
         ("format", cli.outputformat.to_string()),
     ];
+    serde_json::to_string_pretty(
+        &reqwest::blocking::Client::new()
+            .post(format!("http://{}/submit", cli.address))
+            .form(&body)
+            .send()
+            .unwrap()
+            .json::<Value>()
+            .unwrap(),
+    )
+    .unwrap()
+}
+
+fn submit_cudaq(cli: &options::Options) -> String {
+    let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
+    let body = [("code", content)];
     serde_json::to_string_pretty(
         &reqwest::blocking::Client::new()
             .post(format!("http://{}/submit", cli.address))
@@ -61,6 +75,7 @@ fn main() {
         options::Model::InitQthread => init_qthread(&cli),
         options::Model::Emulate => emulate(&cli),
         options::Model::GetTask => get_task(&cli),
+        options::Model::CUDAQ => submit_cudaq(&cli),
     };
 
     println!("{}", output);
