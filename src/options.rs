@@ -22,15 +22,20 @@ pub enum Model {
     InitQthread,
     Emulate,
     GetTask,
+    Qpp,
 }
 
-impl std::fmt::Display for Model {
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum SimulatorType {
+    DM,
+    SV,
+}
+
+impl std::fmt ::Display for SimulatorType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Model::CUDAQ => write!(f, "cudaq"),
-            Model::InitQthread => write!(f, "init-qthread"),
-            Model::Emulate => write!(f, "emulate"),
-            Model::GetTask => write!(f, "get-task"),
+            SimulatorType::DM => write!(f, "dm"),
+            SimulatorType::SV => write!(f, "sv"),
         }
     }
 }
@@ -53,7 +58,7 @@ pub struct Options {
     #[arg(short, long, value_enum, default_value = "json")]
     pub outputformat: OutputFormat,
 
-    /// The number of shots1
+    /// The number of shots
     #[arg(short, long, default_value = "0")]
     pub shots: usize,
 
@@ -68,4 +73,8 @@ pub struct Options {
     /// Whether to test the server, do not need to specify the file
     #[arg(short, long, default_value = "emulate")]
     pub model: Model,
+
+    /// The simulator type, dm represents density matrix, sv represents state vector
+    #[arg(long, default_value = "dm")]
+    pub simulator: SimulatorType,
 }
