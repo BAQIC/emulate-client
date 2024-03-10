@@ -72,6 +72,25 @@ fn submit_qpp(cli: &options::Options) -> String {
     .unwrap()
 }
 
+fn submit_agent(cli: &options::Options) -> String {
+    let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
+    let body = [
+        ("code", content),
+        ("shots", cli.shots.to_string()),
+        ("agent", cli.agent.to_string()),
+    ];
+    serde_json::to_string_pretty(
+        &reqwest::blocking::Client::new()
+            .post(format!("http://{}/submit", cli.address))
+            .form(&body)
+            .send()
+            .unwrap()
+            .json::<Value>()
+            .unwrap(),
+    )
+    .unwrap()
+}
+
 fn submit_qasmsim(cli: &options::Options) -> String {
     let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
     let body = [("qasm", content), ("shots", cli.shots.to_string())];
@@ -112,6 +131,7 @@ fn main() {
         options::Model::CUDAQ => submit_cudaq(&cli),
         options::Model::Qpp => submit_qpp(&cli),
         options::Model::QASMSim => submit_qasmsim(&cli),
+        options::Model::Agent => submit_agent(&cli),
     };
 
     println!("{}", output);

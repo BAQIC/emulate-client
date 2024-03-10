@@ -23,7 +23,9 @@ pub enum Model {
     Emulate,
     GetTask,
     Qpp,
+    #[clap(name = "qasmsim")]
     QASMSim,
+    Agent,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -32,11 +34,31 @@ pub enum SimulatorType {
     SV,
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum AgentType {
+    QppSV,
+    QppDM,
+    #[clap(name = "qasmsim")]
+    QASMSim,
+    CUDAQ,
+}
+
 impl std::fmt::Display for SimulatorType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             SimulatorType::DM => write!(f, "dm"),
             SimulatorType::SV => write!(f, "sv"),
+        }
+    }
+}
+
+impl std::fmt::Display for AgentType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AgentType::QppSV => write!(f, "qpp-sv"),
+            AgentType::QppDM => write!(f, "qpp-dm"),
+            AgentType::QASMSim => write!(f, "qasmsim"),
+            AgentType::CUDAQ => write!(f, "cudaq"),
         }
     }
 }
@@ -78,4 +100,8 @@ pub struct Options {
     /// The simulator type, dm represents density matrix, sv represents state vector
     #[arg(long, default_value = "dm")]
     pub simulator: SimulatorType,
+
+    /// The agent type
+    #[arg(long, default_value = "qasmsim")]
+    pub agent: AgentType,
 }
