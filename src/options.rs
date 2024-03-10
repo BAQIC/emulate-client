@@ -23,6 +23,7 @@ pub enum Model {
     Emulate,
     GetTask,
     Qpp,
+    QASMSim,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -31,7 +32,7 @@ pub enum SimulatorType {
     SV,
 }
 
-impl std::fmt ::Display for SimulatorType {
+impl std::fmt::Display for SimulatorType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             SimulatorType::DM => write!(f, "dm"),
