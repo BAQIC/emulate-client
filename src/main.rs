@@ -22,9 +22,9 @@ fn init_qthread(cli: &options::Options) -> String {
 fn emulate(cli: &options::Options) -> String {
     let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
     let body = [
-        ("qasm", content),
+        ("code", content),
         ("shots", cli.shots.to_string()),
-        ("format", cli.outputformat.to_string()),
+        ("agent", cli.agent.to_string()),
     ];
     serde_json::to_string_pretty(
         &reqwest::blocking::Client::new()
