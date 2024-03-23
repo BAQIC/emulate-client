@@ -7,7 +7,10 @@ use std::fs;
 fn init_qthread(cli: &options::Options) -> String {
     let url = reqwest::Url::parse_with_params(
         &format!("http://{}/init", cli.address),
-        [("agent_num", cli.agent_num.to_string())],
+        [
+            ("ip", cli.agent_ip.to_string()),
+            ("port", cli.agent_port.to_string()),
+        ],
     )
     .unwrap();
     serde_json::to_string_pretty(
