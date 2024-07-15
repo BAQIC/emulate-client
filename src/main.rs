@@ -4,14 +4,86 @@ mod options;
 use serde_json::Value;
 use std::fs;
 
-fn init_qthread(cli: &options::Options) -> String {
+fn add_agent(cli: &options::Options) -> String {
     let url = reqwest::Url::parse_with_params(
-        &format!("http://{}/init", cli.address),
+        &format!("http://{}/add_agent", cli.address),
         [
             ("ip", cli.agent_ip.to_string()),
-            ("port", cli.agent_port.to_string()),
-            ("qubit_count", 20.to_string()),
-            ("circuit_depth", 20.to_string()),
+            ("port", cli.agent_port.unwrap().to_string()),
+            ("qubit_count", cli.agent_qubit_count.to_string()),
+            ("circuit_depth", cli.agent_circuit_depth.to_string()),
+        ],
+    )
+    .unwrap();
+    serde_json::to_string_pretty(
+        &reqwest::blocking::get(url)
+            .unwrap()
+            .json::<Value>()
+            .unwrap(),
+    )
+    .unwrap()
+}
+
+fn get_agents(cli: &options::Options) -> String {
+    match cli.agent_port {
+        Some(port) => {
+            let url = reqwest::Url::parse_with_params(
+                &format!("http://{}/get_agents", cli.address),
+                [("ip", cli.agent_ip.to_string()), ("port", port.to_string())],
+            )
+            .unwrap();
+            serde_json::to_string_pretty(
+                &reqwest::blocking::get(url)
+                    .unwrap()
+                    .json::<Value>()
+                    .unwrap(),
+            )
+            .unwrap()
+        }
+        None => {
+            let url = reqwest::Url::parse_with_params(
+                &format!("http://{}/get_agents", cli.address),
+                [("ip", cli.agent_ip.to_string())],
+            )
+            .unwrap();
+            serde_json::to_string_pretty(
+                &reqwest::blocking::get(url)
+                    .unwrap()
+                    .json::<Value>()
+                    .unwrap(),
+            )
+            .unwrap()
+        }
+    }
+}
+
+fn update_agent(cli: &options::Options) -> String {
+    let url = reqwest::Url::parse_with_params(
+        &format!("http://{}/update_agent", cli.address),
+        [
+            ("id", cli.agent_id.to_string()),
+            ("ip", cli.agent_ip.to_string()),
+            ("port", cli.agent_port.unwrap().to_string()),
+            ("qubit_count", cli.agent_qubit_count.to_string()),
+            ("circuit_depth", cli.agent_circuit_depth.to_string()),
+        ],
+    )
+    .unwrap();
+    serde_json::to_string_pretty(
+        &reqwest::blocking::get(url)
+            .unwrap()
+            .json::<Value>()
+            .unwrap(),
+    )
+    .unwrap()
+}
+
+fn update_agent_status(cli: &options::Options) -> String {
+    let url = reqwest::Url::parse_with_params(
+        &format!("http://{}/update_agent_status", cli.address),
+        [
+            ("id", cli.agent_id.to_string()),
+            ("status", cli.agent_status.to_string()),
         ],
     )
     .unwrap();
@@ -44,78 +116,10 @@ fn emulate(cli: &options::Options) -> String {
     .unwrap()
 }
 
-fn submit_cudaq(cli: &options::Options) -> String {
-    let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
-    let body = [("code", content)];
-    serde_json::to_string_pretty(
-        &reqwest::blocking::Client::new()
-            .post(format!("http://{}/submit", cli.address))
-            .form(&body)
-            .send()
-            .unwrap()
-            .json::<Value>()
-            .unwrap(),
-    )
-    .unwrap()
-}
-
-fn submit_qpp(cli: &options::Options) -> String {
-    let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
-    let body = [
-        ("qasm", content),
-        ("shots", cli.shots.to_string()),
-        ("backend", cli.simulator.to_string()),
-    ];
-    serde_json::to_string_pretty(
-        &reqwest::blocking::Client::new()
-            .post(format!("http://{}/submit", cli.address))
-            .form(&body)
-            .send()
-            .unwrap()
-            .json::<Value>()
-            .unwrap(),
-    )
-    .unwrap()
-}
-
-fn submit_agent(cli: &options::Options) -> String {
-    let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
-    let body = [
-        ("code", content),
-        ("shots", cli.shots.to_string()),
-        ("agent", cli.agent.to_string()),
-    ];
-    serde_json::to_string_pretty(
-        &reqwest::blocking::Client::new()
-            .post(format!("http://{}/submit", cli.address))
-            .form(&body)
-            .send()
-            .unwrap()
-            .json::<Value>()
-            .unwrap(),
-    )
-    .unwrap()
-}
-
-fn submit_qasmsim(cli: &options::Options) -> String {
-    let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
-    let body = [("qasm", content), ("shots", cli.shots.to_string())];
-    serde_json::to_string_pretty(
-        &reqwest::blocking::Client::new()
-            .post(format!("http://{}/submit", cli.address))
-            .form(&body)
-            .send()
-            .unwrap()
-            .json::<Value>()
-            .unwrap(),
-    )
-    .unwrap()
-}
-
 fn get_task(cli: &options::Options) -> String {
     let url = reqwest::Url::parse_with_params(
         &format!("http://{}/get_task", cli.address),
-        [("task_id", cli.task_id.as_ref().unwrap())],
+        [("task_id", &cli.task_id)],
     )
     .unwrap();
     serde_json::to_string_pretty(
@@ -131,13 +135,12 @@ fn main() {
     let cli = options::Options::parse();
 
     let output = match cli.model {
-        options::Model::InitQthread => init_qthread(&cli),
+        options::Model::AddAgent => add_agent(&cli),
+        options::Model::GetAgents => get_agents(&cli),
+        options::Model::UpdateAgent => update_agent(&cli),
+        options::Model::UpdateAgentStatus => update_agent_status(&cli),
         options::Model::Emulate => emulate(&cli),
         options::Model::GetTask => get_task(&cli),
-        options::Model::CUDAQ => submit_cudaq(&cli),
-        options::Model::Qpp => submit_qpp(&cli),
-        options::Model::QASMSim => submit_qasmsim(&cli),
-        options::Model::Agent => submit_agent(&cli),
     };
 
     println!("{}", output);
