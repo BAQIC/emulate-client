@@ -5,7 +5,6 @@ use std::net::{IpAddr, SocketAddr};
 pub enum Model {
     AddAgent,
     GetAgents,
-    UpdateAgentStatus,
     UpdateAgent,
     Emulate,
     GetTask,
@@ -45,28 +44,28 @@ pub struct Options {
     pub shots: usize,
 
     /// The agent uuid
-    #[arg(long, default_value = "")]
-    pub agent_id: String,
+    #[arg(long, default_value = None)]
+    pub agent_id: Option<String>,
 
     /// The agent ip when initializing the database
-    #[arg(long, default_value = "127.0.0.1")]
-    pub agent_ip: IpAddr,
+    #[arg(long, default_value = None)]
+    pub agent_ip: Option<IpAddr>,
 
     /// The agent port when initializing the database
     #[arg(long, default_value = None)]
     pub agent_port: Option<u16>,
 
     /// The agent qubit
-    #[arg(long, default_value = "20")]
-    pub agent_qubit_count: usize,
+    #[arg(long, default_value = None)]
+    pub agent_qubit_count: Option<usize>,
 
     /// The agent circuit depth
-    #[arg(long, default_value = "20")]
-    pub agent_circuit_depth: usize,
+    #[arg(long, default_value = None)]
+    pub agent_circuit_depth: Option<usize>,
 
     /// The agent status
-    #[arg(long, default_value = "running")]
-    pub agent_status: AgentStatus,
+    #[arg(long, default_value = None)]
+    pub agent_status: Option<AgentStatus>,
 
     /// The id of the job
     #[arg(short, long, default_value = "")]
