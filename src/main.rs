@@ -10,6 +10,8 @@ fn init_qthread(cli: &options::Options) -> String {
         [
             ("ip", cli.agent_ip.to_string()),
             ("port", cli.agent_port.to_string()),
+            ("qubit_count", 20.to_string()),
+            ("circuit_depth", 20.to_string()),
         ],
     )
     .unwrap();
@@ -27,7 +29,8 @@ fn emulate(cli: &options::Options) -> String {
     let body = [
         ("code", content),
         ("shots", cli.shots.to_string()),
-        ("agent", cli.agent.to_string()),
+        ("depth", 10.to_string()),
+        ("qubits", 10.to_string()),
     ];
     serde_json::to_string_pretty(
         &reqwest::blocking::Client::new()
