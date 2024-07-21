@@ -40,8 +40,16 @@ pub struct Options {
     pub address: SocketAddr,
 
     /// The number of shots
-    #[arg(short, long, default_value = "0")]
+    #[arg(short, long, default_value = "1")]
     pub shots: usize,
+
+    /// The number of qubits
+    #[arg(short, long, default_value = "1")]
+    pub qubits: usize,
+
+    /// The depth of the circuit
+    #[arg(short, long, default_value = "1")]
+    pub depth: usize,
 
     /// The agent uuid
     #[arg(long, default_value = None)]

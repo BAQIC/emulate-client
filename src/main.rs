@@ -5,21 +5,21 @@ use serde_json::Value;
 use std::fs;
 
 fn add_agent(cli: &options::Options) -> String {
-    let url = reqwest::Url::parse_with_params(
-        &format!("http://{}/add_agent", cli.address),
-        [
-            ("ip", cli.agent_ip.unwrap().to_string()),
-            ("port", cli.agent_port.unwrap().to_string()),
-            ("qubit_count", cli.agent_qubit_count.unwrap().to_string()),
-            (
-                "circuit_depth",
-                cli.agent_circuit_depth.unwrap().to_string(),
-            ),
-        ],
-    )
-    .unwrap();
+    let params = [
+        ("ip", cli.agent_ip.unwrap().to_string()),
+        ("port", cli.agent_port.unwrap().to_string()),
+        ("qubit_count", cli.agent_qubit_count.unwrap().to_string()),
+        (
+            "circuit_depth",
+            cli.agent_circuit_depth.unwrap().to_string(),
+        ),
+    ];
+
     serde_json::to_string_pretty(
-        &reqwest::blocking::get(url)
+        &reqwest::blocking::Client::new()
+            .post(format!("http://{}/add_agent", cli.address))
+            .form(&params)
+            .send()
             .unwrap()
             .json::<Value>()
             .unwrap(),
@@ -83,12 +83,11 @@ fn update_agent(cli: &options::Options) -> String {
         params.push(("status".to_string(), status.to_string()));
     }
 
-    let url =
-        reqwest::Url::parse_with_params(&format!("http://{}/update_agent", cli.address), params)
-            .unwrap();
-
     serde_json::to_string_pretty(
-        &reqwest::blocking::get(url)
+        &reqwest::blocking::Client::new()
+            .post(format!("http://{}/update_agent", cli.address))
+            .form(&params)
+            .send()
             .unwrap()
             .json::<Value>()
             .unwrap(),
@@ -101,8 +100,8 @@ fn emulate(cli: &options::Options) -> String {
     let body = [
         ("code", content),
         ("shots", cli.shots.to_string()),
-        ("depth", 10.to_string()),
-        ("qubits", 10.to_string()),
+        ("depth", cli.depth.to_string()),
+        ("qubits", cli.qubits.to_string()),
     ];
     serde_json::to_string_pretty(
         &reqwest::blocking::Client::new()
