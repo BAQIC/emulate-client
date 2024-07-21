@@ -8,6 +8,7 @@ pub enum Model {
     UpdateAgent,
     Emulate,
     GetTask,
+    FreshDB,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -58,6 +59,10 @@ pub struct Options {
     /// The agent ip when initializing the database
     #[arg(long, default_value = None)]
     pub agent_ip: Option<IpAddr>,
+
+    /// The agent hostname when initializing the database
+    #[arg(long, default_value = None)]
+    pub agent_hostname: Option<String>,
 
     /// The agent port when initializing the database
     #[arg(long, default_value = None)]

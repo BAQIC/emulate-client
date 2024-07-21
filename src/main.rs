@@ -5,15 +5,27 @@ use serde_json::Value;
 use std::fs;
 
 fn add_agent(cli: &options::Options) -> String {
-    let params = [
-        ("ip", cli.agent_ip.unwrap().to_string()),
-        ("port", cli.agent_port.unwrap().to_string()),
-        ("qubit_count", cli.agent_qubit_count.unwrap().to_string()),
+    let mut params: Vec<(String, String)> = vec![
+        ("port".to_string(), cli.agent_port.unwrap().to_string()),
         (
-            "circuit_depth",
+            "qubit_count".to_string(),
+            cli.agent_qubit_count.unwrap().to_string(),
+        ),
+        (
+            "circuit_depth".to_string(),
             cli.agent_circuit_depth.unwrap().to_string(),
         ),
     ];
+
+    if cli.agent_ip.is_some() {
+        params.push(("ip".to_string(), cli.agent_ip.unwrap().to_string()));
+    } else {
+        params.push(("ip".to_string(), "".to_string()));
+        params.push((
+            "hostname".to_string(),
+            cli.agent_hostname.clone().unwrap().to_string(),
+        ));
+    }
 
     serde_json::to_string_pretty(
         &reqwest::blocking::Client::new()
@@ -33,7 +45,7 @@ fn get_agents(cli: &options::Options) -> String {
             let url = reqwest::Url::parse_with_params(
                 &format!("http://{}/get_agents", cli.address),
                 [
-                    ("ip", cli.agent_ip.unwrap().to_string()),
+                    ("ip", "qasmsim-agent-2".to_string()),
                     ("port", port.to_string()),
                 ],
             )
@@ -130,6 +142,18 @@ fn get_task(cli: &options::Options) -> String {
     .unwrap()
 }
 
+fn fresh_db(cli: &options::Options) -> String {
+    serde_json::to_string_pretty(
+        &reqwest::blocking::Client::new()
+            .post(format!("http://{}/fresh_db", cli.address))
+            .send()
+            .unwrap()
+            .json::<Value>()
+            .unwrap(),
+    )
+    .unwrap()
+}
+
 fn main() {
     let cli = options::Options::parse();
 
@@ -139,6 +163,7 @@ fn main() {
         options::Model::UpdateAgent => update_agent(&cli),
         options::Model::Emulate => emulate(&cli),
         options::Model::GetTask => get_task(&cli),
+        options::Model::FreshDB => fresh_db(&cli),
     };
 
     println!("{}", output);
