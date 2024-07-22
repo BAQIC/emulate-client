@@ -107,6 +107,22 @@ fn update_agent(cli: &options::Options) -> String {
     .unwrap()
 }
 
+fn remove_agent(cli: &options::Options) -> String {
+    let url = reqwest::Url::parse_with_params(
+        &format!("http://{}/remove_agent", cli.address),
+        [("id", &cli.agent_id.clone().unwrap())],
+    )
+    .unwrap();
+
+    serde_json::to_string_pretty(
+        &reqwest::blocking::get(url)
+            .unwrap()
+            .json::<Value>()
+            .unwrap(),
+    )
+    .unwrap()
+}
+
 fn emulate(cli: &options::Options) -> String {
     let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
     let body = [
@@ -161,6 +177,7 @@ fn main() {
         options::Model::AddAgent => add_agent(&cli),
         options::Model::GetAgents => get_agents(&cli),
         options::Model::UpdateAgent => update_agent(&cli),
+        options::Model::RemoveAgent => remove_agent(&cli),
         options::Model::Emulate => emulate(&cli),
         options::Model::GetTask => get_task(&cli),
         options::Model::FreshDB => fresh_db(&cli),

@@ -6,6 +6,7 @@ pub enum Model {
     AddAgent,
     GetAgents,
     UpdateAgent,
+    RemoveAgent,
     Emulate,
     GetTask,
     FreshDB,
