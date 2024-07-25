@@ -1,3 +1,7 @@
+//! # Quantum Emulator Client
+//! This is a client for the Quantum Emulator Server. It allows you to add, get,
+//! update, and remove agents, submit tasks, and get the results of tasks.
+
 use clap::Parser;
 extern crate reqwest;
 mod options;
