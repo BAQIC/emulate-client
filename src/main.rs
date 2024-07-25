@@ -42,35 +42,72 @@ fn add_agent(cli: &options::Options) -> String {
 fn get_agents(cli: &options::Options) -> String {
     match cli.agent_port {
         Some(port) => {
-            let url = reqwest::Url::parse_with_params(
-                &format!("http://{}/get_agents", cli.address),
-                [
-                    ("ip", "qasmsim-agent-2".to_string()),
-                    ("port", port.to_string()),
-                ],
-            )
-            .unwrap();
-            serde_json::to_string_pretty(
-                &reqwest::blocking::get(url)
-                    .unwrap()
-                    .json::<Value>()
-                    .unwrap(),
-            )
-            .unwrap()
+            if cli.agent_ip.is_none() {
+                let url = reqwest::Url::parse_with_params(
+                    &format!("http://{}/get_agents", cli.address),
+                    [
+                        ("ip", "".to_string()),
+                        ("hostname", cli.agent_hostname.clone().unwrap()),
+                        ("port", port.to_string()),
+                    ],
+                )
+                .unwrap();
+                serde_json::to_string_pretty(
+                    &reqwest::blocking::get(url)
+                        .unwrap()
+                        .json::<Value>()
+                        .unwrap(),
+                )
+                .unwrap()
+            } else {
+                let url = reqwest::Url::parse_with_params(
+                    &format!("http://{}/get_agents", cli.address),
+                    [
+                        ("ip", cli.agent_ip.unwrap().to_string()),
+                        ("port", port.to_string()),
+                    ],
+                )
+                .unwrap();
+                serde_json::to_string_pretty(
+                    &reqwest::blocking::get(url)
+                        .unwrap()
+                        .json::<Value>()
+                        .unwrap(),
+                )
+                .unwrap()
+            }
         }
         None => {
-            let url = reqwest::Url::parse_with_params(
-                &format!("http://{}/get_agents", cli.address),
-                [("ip", cli.agent_ip.unwrap().to_string())],
-            )
-            .unwrap();
-            serde_json::to_string_pretty(
-                &reqwest::blocking::get(url)
-                    .unwrap()
-                    .json::<Value>()
-                    .unwrap(),
-            )
-            .unwrap()
+            if cli.agent_ip.is_none() {
+                let url = reqwest::Url::parse_with_params(
+                    &format!("http://{}/get_agents", cli.address),
+                    [
+                        ("ip", "".to_string()),
+                        ("hostname", cli.agent_hostname.clone().unwrap()),
+                    ],
+                )
+                .unwrap();
+                serde_json::to_string_pretty(
+                    &reqwest::blocking::get(url)
+                        .unwrap()
+                        .json::<Value>()
+                        .unwrap(),
+                )
+                .unwrap()
+            } else {
+                let url = reqwest::Url::parse_with_params(
+                    &format!("http://{}/get_agents", cli.address),
+                    [("ip", cli.agent_ip.unwrap().to_string())],
+                )
+                .unwrap();
+                serde_json::to_string_pretty(
+                    &reqwest::blocking::get(url)
+                        .unwrap()
+                        .json::<Value>()
+                        .unwrap(),
+                )
+                .unwrap()
+            }
         }
     }
 }
