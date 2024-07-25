@@ -2,63 +2,27 @@ use clap::{Parser, ValueEnum};
 use std::net::{IpAddr, SocketAddr};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-pub enum OutputFormat {
-    Json,
-    Tabular,
-}
-
-impl std::fmt::Display for OutputFormat {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            OutputFormat::Json => write!(f, "json"),
-            OutputFormat::Tabular => write!(f, "tabular"),
-        }
-    }
-}
-
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub enum Model {
-    CUDAQ,
-    InitQthread,
+    AddAgent,
+    GetAgents,
+    UpdateAgent,
+    RemoveAgent,
     Emulate,
     GetTask,
-    Qpp,
-    #[clap(name = "qasmsim")]
-    QASMSim,
-    Agent,
+    FreshDB,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-pub enum SimulatorType {
-    DM,
-    SV,
+pub enum AgentStatus {
+    Down,
+    Running,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-pub enum AgentType {
-    QppSV,
-    QppDM,
-    #[clap(name = "qasmsim")]
-    QASMSim,
-    CUDAQ,
-}
-
-impl std::fmt::Display for SimulatorType {
+impl std::fmt::Display for AgentStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SimulatorType::DM => write!(f, "dm"),
-            SimulatorType::SV => write!(f, "sv"),
-        }
-    }
-}
-
-impl std::fmt::Display for AgentType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AgentType::QppSV => write!(f, "qpp-sv"),
-            AgentType::QppDM => write!(f, "qpp-dm"),
-            AgentType::QASMSim => write!(f, "qasmsim"),
-            AgentType::CUDAQ => write!(f, "cudaq"),
+            AgentStatus::Down => write!(f, "down"),
+            AgentStatus::Running => write!(f, "running"),
         }
     }
 }
@@ -77,35 +41,51 @@ pub struct Options {
     /// The server address
     pub address: SocketAddr,
 
-    /// The output format
-    #[arg(short, long, value_enum, default_value = "json")]
-    pub outputformat: OutputFormat,
-
     /// The number of shots
-    #[arg(short, long, default_value = "0")]
+    #[arg(short, long, default_value = "1")]
     pub shots: usize,
 
+    /// The number of qubits
+    #[arg(short, long, default_value = "1")]
+    pub qubits: usize,
+
+    /// The depth of the circuit
+    #[arg(short, long, default_value = "1")]
+    pub depth: usize,
+
+    /// The agent uuid
+    #[arg(long, default_value = None)]
+    pub agent_id: Option<String>,
+
     /// The agent ip when initializing the database
-    #[arg(long, default_value = "127.0.0.1")]
-    pub agent_ip: IpAddr,
+    #[arg(long, default_value = None)]
+    pub agent_ip: Option<IpAddr>,
+
+    /// The agent hostname when initializing the database
+    #[arg(long, default_value = None)]
+    pub agent_hostname: Option<String>,
 
     /// The agent port when initializing the database
-    #[arg(long, default_value = "3000")]
-    pub agent_port: u16,
+    #[arg(long, default_value = None)]
+    pub agent_port: Option<u16>,
+
+    /// The agent qubit
+    #[arg(long, default_value = None)]
+    pub agent_qubit_count: Option<usize>,
+
+    /// The agent circuit depth
+    #[arg(long, default_value = None)]
+    pub agent_circuit_depth: Option<usize>,
+
+    /// The agent status
+    #[arg(long, default_value = None)]
+    pub agent_status: Option<AgentStatus>,
 
     /// The id of the job
-    #[arg(short, long, default_value = None)]
-    pub task_id: Option<String>,
+    #[arg(short, long, default_value = "")]
+    pub task_id: String,
 
     /// Whether to test the server, do not need to specify the file
     #[arg(short, long, default_value = "emulate")]
     pub model: Model,
-
-    /// The simulator type, dm represents density matrix, sv represents state vector
-    #[arg(long, default_value = "dm")]
-    pub simulator: SimulatorType,
-
-    /// The agent type
-    #[arg(long, default_value = "qasmsim")]
-    pub agent: AgentType,
 }
