@@ -166,12 +166,16 @@ fn remove_agent(cli: &options::Options) -> String {
 
 fn emulate(cli: &options::Options) -> String {
     let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
-    let body = [
+    let mut body = vec![
         ("code", content),
         ("shots", cli.shots.to_string()),
         ("depth", cli.depth.to_string()),
         ("qubits", cli.qubits.to_string()),
     ];
+    if cli.task_mode.is_some() {
+        body.push(("mode", cli.task_mode.unwrap().to_string()));
+    }
+
     serde_json::to_string_pretty(
         &reqwest::blocking::Client::new()
             .post(format!("http://{}/submit", cli.address))
