@@ -33,6 +33,7 @@ pub enum TaskMode {
     Aggregation,
     Max,
     Min,
+    Expectation,
 }
 
 impl std::fmt::Display for TaskMode {
@@ -42,6 +43,7 @@ impl std::fmt::Display for TaskMode {
             TaskMode::Aggregation => write!(f, "aggregation"),
             TaskMode::Max => write!(f, "max"),
             TaskMode::Min => write!(f, "min"),
+            TaskMode::Expectation => write!(f, "expectation"),
         }
     }
 }
