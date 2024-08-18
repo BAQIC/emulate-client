@@ -58,6 +58,10 @@ pub struct Options {
     #[arg(short, long, default_value = "example.qasm")]
     pub file: String,
 
+    /// The variable json file
+    #[arg(short, long, default_value = "variables.json")]
+    pub vars: Option<String>,
+
     #[arg(short, long, default_value = "127.0.0.1:3000")]
     /// The server address
     pub address: SocketAddr,

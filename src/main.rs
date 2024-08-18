@@ -175,6 +175,11 @@ fn emulate(cli: &options::Options) -> String {
     if cli.task_mode.is_some() {
         body.push(("mode", cli.task_mode.unwrap().to_string()));
     }
+    if cli.vars.is_some() {
+        let vars = fs::read_to_string(cli.vars.clone().unwrap())
+            .expect("Something went wrong reading the file");
+        body.push(("vars", vars));
+    }
 
     serde_json::to_string_pretty(
         &reqwest::blocking::Client::new()
