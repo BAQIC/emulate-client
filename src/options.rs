@@ -7,6 +7,9 @@ pub enum Model {
     GetAgents,
     UpdateAgent,
     RemoveAgent,
+    QasmSimAgent,
+    UpdateQasmSimAgent,
+    GetQasmSimAgent,
     Emulate,
     GetTask,
     FreshDB,
@@ -27,6 +30,27 @@ impl std::fmt::Display for AgentStatus {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum TaskMode {
+    Sequence,
+    Aggregation,
+    Max,
+    Min,
+    Expectation,
+}
+
+impl std::fmt::Display for TaskMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TaskMode::Sequence => write!(f, "sequence"),
+            TaskMode::Aggregation => write!(f, "aggregation"),
+            TaskMode::Max => write!(f, "max"),
+            TaskMode::Min => write!(f, "min"),
+            TaskMode::Expectation => write!(f, "expectation"),
+        }
+    }
+}
+
 #[derive(Parser, Debug)]
 #[command(name = "emulate-client")]
 #[command(author = "Lucky <lucky@lucky9.cyou>")]
@@ -36,6 +60,10 @@ pub struct Options {
     /// The path to the file to read
     #[arg(short, long, default_value = "example.qasm")]
     pub file: String,
+
+    /// The variable json file
+    #[arg(short, long, default_value = "variables.json")]
+    pub vars: Option<String>,
 
     #[arg(short, long, default_value = "127.0.0.1:3000")]
     /// The server address
@@ -49,9 +77,21 @@ pub struct Options {
     #[arg(short, long, default_value = "1")]
     pub qubits: usize,
 
+    /// The capacity of the qasmsim agent result
+    #[arg(short, long, default_value = "10")]
+    pub capacity: usize,
+
+    /// The position of the qasmsim agent result
+    #[arg(short, long, default_value = "0")]
+    pub position: usize,
+
     /// The depth of the circuit
     #[arg(short, long, default_value = "1")]
     pub depth: usize,
+
+    /// The mode of the task
+    #[arg(long, default_value = None)]
+    pub task_mode: Option<TaskMode>,
 
     /// The agent uuid
     #[arg(long, default_value = None)]
