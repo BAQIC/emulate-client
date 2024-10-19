@@ -6,7 +6,7 @@ use clap::Parser;
 extern crate reqwest;
 mod options;
 use serde_json::Value;
-use std::fs;
+use std::{fs, vec};
 
 fn add_agent(cli: &options::Options) -> String {
     let mut params: Vec<(String, String)> = vec![
@@ -164,6 +164,64 @@ fn remove_agent(cli: &options::Options) -> String {
     .unwrap()
 }
 
+fn qasmsim_agent(cli: &options::Options) -> String {
+    let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
+    let mut body = vec![
+        ("task_id", "test".to_string()),
+        ("qasm", content),
+        ("shots", cli.shots.to_string()),
+    ];
+
+    if cli.task_mode.is_some() {
+        body.push(("mode", cli.task_mode.unwrap().to_string()));
+    }
+
+    serde_json::to_string_pretty(
+        &reqwest::blocking::Client::new()
+            .post(format!("http://{}/submit", cli.address))
+            .form(&body)
+            .send()
+            .unwrap()
+            .json::<Value>()
+            .unwrap(),
+    )
+    .unwrap()
+}
+
+fn update_qasmsim_agent(cli: &options::Options) -> String {
+    let body = vec![
+        ("qbits", cli.qubits.to_string()),
+        ("capacity", cli.capacity.to_string()),
+    ];
+
+    serde_json::to_string_pretty(
+        &reqwest::blocking::Client::new()
+            .post(format!("http://{}/update", cli.address))
+            .form(&body)
+            .send()
+            .unwrap()
+            .json::<Value>()
+            .unwrap(),
+    )
+    .unwrap()
+}
+
+fn get_qasmsim_agent(cli: &options::Options) -> String {
+    let url = reqwest::Url::parse_with_params(
+        &format!("http://{}/get_measure", cli.address),
+        [("pos", &cli.position.to_string())],
+    )
+    .unwrap();
+
+    serde_json::to_string_pretty(
+        &reqwest::blocking::get(url)
+            .unwrap()
+            .json::<Value>()
+            .unwrap(),
+    )
+    .unwrap()
+}
+
 fn emulate(cli: &options::Options) -> String {
     let content = fs::read_to_string(&cli.file).expect("Something went wrong reading the file");
     let mut body = vec![
@@ -228,6 +286,9 @@ fn main() {
         options::Model::GetAgents => get_agents(&cli),
         options::Model::UpdateAgent => update_agent(&cli),
         options::Model::RemoveAgent => remove_agent(&cli),
+        options::Model::QasmSimAgent => qasmsim_agent(&cli),
+        options::Model::UpdateQasmSimAgent => update_qasmsim_agent(&cli),
+        options::Model::GetQasmSimAgent => get_qasmsim_agent(&cli),
         options::Model::Emulate => emulate(&cli),
         options::Model::GetTask => get_task(&cli),
         options::Model::FreshDB => fresh_db(&cli),

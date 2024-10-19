@@ -7,6 +7,9 @@ pub enum Model {
     GetAgents,
     UpdateAgent,
     RemoveAgent,
+    QasmSimAgent,
+    UpdateQasmSimAgent,
+    GetQasmSimAgent,
     Emulate,
     GetTask,
     FreshDB,
@@ -73,6 +76,14 @@ pub struct Options {
     /// The number of qubits
     #[arg(short, long, default_value = "1")]
     pub qubits: usize,
+
+    /// The capacity of the qasmsim agent result
+    #[arg(short, long, default_value = "10")]
+    pub capacity: usize,
+
+    /// The position of the qasmsim agent result
+    #[arg(short, long, default_value = "0")]
+    pub position: usize,
 
     /// The depth of the circuit
     #[arg(short, long, default_value = "1")]
